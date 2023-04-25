@@ -1,5 +1,6 @@
 package com.communityforum.dao;
 
+
 import org.apache.ibatis.annotations.Mapper;
 
 /**
