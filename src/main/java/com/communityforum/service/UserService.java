@@ -1,6 +1,8 @@
 package com.communityforum.service;
 
+import com.communityforum.dao.LoginTicketMapper;
 import com.communityforum.dao.UserMapper;
+import com.communityforum.entity.LoginTicket;
 import com.communityforum.entity.User;
 import com.communityforum.util.CommunityConstant;
 import com.communityforum.util.CommunityUtil;
@@ -28,6 +30,9 @@ public class UserService implements CommunityConstant {
     @Autowired
     private TemplateEngine templateEngine;
 
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
     @Value("${communityForum.path.domain}")
     private String domain;
 
@@ -40,6 +45,7 @@ public class UserService implements CommunityConstant {
 
     /**
      * 用户注册
+     *
      * @param user
      * @return
      */
@@ -102,6 +108,7 @@ public class UserService implements CommunityConstant {
 
     /**
      * 激活账号
+     *
      * @param userId
      * @param code
      * @return
@@ -118,4 +125,61 @@ public class UserService implements CommunityConstant {
         }
     }
 
+    /**
+     * 登陆逻辑
+     * @param username
+     * @param password
+     * @param expiredSeconds
+     * @return
+     */
+    public Map<String, Object> login(String username, String password, long expiredSeconds) {
+        Map<String, Object> map = new HashMap<>();
+
+        // 空值处理
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "账号不能为空!");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码不能为空!");
+            return map;
+        }
+
+        // 验证账号
+        User user = userMapper.selectByName(username);
+        if (user == null) {
+            map.put("usernameMsg", "该账号不存在!");
+            return map;
+        }
+
+        // 验证是否激活
+        if (user.getStatus() == 0) {
+            map.put("usernameMsg", "该账号未激活!");
+            return map;
+        }
+
+        if (!user.getPassword().equals(CommunityUtil.md5(password + user.getSalt()))) {
+            map.put("passwordMsg", "密码错误!");
+            return map;
+        }
+
+        // 登陆成功 生成登陆凭证
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setStatus(0);
+        loginTicket.setTicket(CommunityUtil.generateUUID());
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+
+        map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
+
+    /**
+     * 修改登陆凭证状态为退出
+     * @param ticket
+     */
+    public void logout(String ticket){
+        loginTicketMapper.updateStatus(ticket,1);
+    }
 }
