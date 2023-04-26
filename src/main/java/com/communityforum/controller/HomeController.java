@@ -26,7 +26,6 @@ public class HomeController {
         // 所以thymleaf中可以直接访问Page对象中的数据
         page.setRows(discussPostService.findDiscussPostRows(0));
         page.setPath("/index");
-        System.out.println(page.getCurrent() + " " + page.getOffset() + " " + page.getLimit());
         List<DiscussPost> posts = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (posts != null) {
