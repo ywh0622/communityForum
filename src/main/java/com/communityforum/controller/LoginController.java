@@ -3,6 +3,8 @@ package com.communityforum.controller;
 import com.communityforum.entity.User;
 import com.communityforum.service.UserService;
 import com.communityforum.util.CommunityConstant;
+import com.google.code.kaptcha.Producer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -18,10 +27,14 @@ import java.util.Map;
  * @Date 2023/4/26 14:39
  */
 @Controller
+@Slf4j(topic = "LoginController")
 public class LoginController implements CommunityConstant {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private Producer kaptchaProducer;
 
     @GetMapping("/register")
     public String getRegisterPage() {
@@ -35,6 +48,7 @@ public class LoginController implements CommunityConstant {
 
     /**
      * 注册账号
+     *
      * @param model
      * @param user
      * @return
@@ -56,6 +70,7 @@ public class LoginController implements CommunityConstant {
 
     /**
      * 激活账号
+     *
      * @param model
      * @param userId
      * @param code
@@ -76,5 +91,24 @@ public class LoginController implements CommunityConstant {
             model.addAttribute("target", "/index");
         }
         return "/site/operate-result";
+    }
+
+    @GetMapping("/kaptcha")
+    public void getKaptcha(HttpServletResponse response, HttpSession session) {
+        // 生成验证码
+        String text = kaptchaProducer.createText();
+        BufferedImage image = kaptchaProducer.createImage(text);
+
+        // 将验证码存入session
+        session.setAttribute("kaptcha", text);
+
+        // 将图片输出给浏览器
+        response.setContentType("image/png");
+        try {
+            OutputStream os = response.getOutputStream();
+            ImageIO.write(image, "png", os);
+        } catch (IOException e) {
+            log.error("响应验证码失败:" + e.getMessage());
+        }
     }
 }
