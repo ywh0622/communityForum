@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Map;
 
 /**
  * @Author YWH
@@ -121,6 +122,25 @@ public class UserController {
             log.error("服务器中未找到该图片：" + e.getMessage());
         } catch (IOException e) {
             log.error("读取头像失败" + e.getMessage());
+        }
+    }
+
+    /**
+     * 修改密码功能
+     * @param oldPassword
+     * @param newPassword
+     * @param model
+     * @return
+     */
+    @PostMapping("/changePassword")
+    public String changePassword(String oldPassword, String newPassword, Model model) {
+        Map<String, Object> map = userService.changePassword(oldPassword, newPassword);
+        if (map.containsKey("success")) {
+            return "redirect:/logout";
+        } else {
+            model.addAttribute("oldPasswordMsg",map.get("oldPasswordMsg"));
+            model.addAttribute("newPasswordMsg",map.get("newPasswordMsg"));
+            return "/site/setting";
         }
     }
 }

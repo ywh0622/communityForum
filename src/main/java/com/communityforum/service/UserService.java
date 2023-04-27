@@ -6,6 +6,7 @@ import com.communityforum.entity.LoginTicket;
 import com.communityforum.entity.User;
 import com.communityforum.util.CommunityConstant;
 import com.communityforum.util.CommunityUtil;
+import com.communityforum.util.HostHolder;
 import com.communityforum.util.MailClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class UserService implements CommunityConstant {
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
+
+    @Autowired
+    private HostHolder hostHolder;
 
     public User findUserById(int id) {
         return userMapper.selectById(id);
@@ -186,6 +190,73 @@ public class UserService implements CommunityConstant {
     }
 
     /**
+     * 重置密码前验证邮箱
+     *
+     * @param email
+     * @return
+     */
+    public Map<String, Object> verifyEmail(String email) {
+        Map<String, Object> map = new HashMap<>();
+
+        if (StringUtils.isBlank(email)) {
+            map.put("emailMsg", "邮箱不能为空!");
+            return map;
+        }
+
+        User user = userMapper.selectByEmail(email);
+        if (user == null) {
+            map.put("emailMsg", "该邮箱未被注册，请重新输入!");
+            return map;
+        } else {
+            Context context = new Context();
+            context.setVariable("email", email);
+            String code = CommunityUtil.generateUUID().substring(0, 4);
+            context.setVariable("verifyCode", code);
+            String content = templateEngine.process("/mail/forget", context);
+            mailClient.sendMail(email, "找回密码", content);
+
+            // 保存验证码
+            map.put("verifyCode", code);
+            return map;
+        }
+    }
+
+    /**
+     * 找回密码
+     *
+     * @param email
+     * @param password
+     * @return
+     */
+    public Map<String, Object> resetPassword(String email, String password) {
+        Map<String, Object> map = new HashMap<>();
+
+        // 空值处理
+        if (StringUtils.isBlank(email)) {
+            map.put("emailMsg", "邮箱不能为空!");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码不能为空!");
+            return map;
+        }
+
+        // 验证邮箱
+        User user = userMapper.selectByEmail(email);
+        if (user == null) {
+            map.put("emailMsg", "该邮箱尚未注册!");
+            return map;
+        }
+
+        // 重置密码
+        password = CommunityUtil.md5(password + user.getSalt());
+        userMapper.updatePassword(user.getId(), password);
+
+        map.put("user", user);
+        return map;
+    }
+
+    /**
      * 查询登陆凭证
      *
      * @param ticket
@@ -197,11 +268,55 @@ public class UserService implements CommunityConstant {
 
     /**
      * 更改头像
+     *
      * @param userId
      * @param headerUrl
      * @return
      */
     public int updateHeader(int userId, String headerUrl) {
         return userMapper.updateHeader(userId, headerUrl);
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param oldPassword
+     * @param newPassword
+     * @return
+     */
+    public Map<String, Object> changePassword(String oldPassword, String newPassword) {
+        Map<String, Object> map = new HashMap<>();
+        // 判断空值
+        if (StringUtils.isBlank(oldPassword)) {
+            map.put("oldPasswordMsg", "原密码不能为空");
+            return map;
+        }
+        if (StringUtils.isBlank(newPassword)) {
+            map.put("newPasswordMsg", "新密码不能为空");
+            return map;
+        }
+
+        // 获取当前用户
+        User user = hostHolder.getUser();
+        if (user != null) {
+            // 用户不为空且旧密码正确
+            if (user.getPassword().equals(CommunityUtil.md5(oldPassword + user.getSalt()))) {
+                // 修改密码
+                if (oldPassword.equals(newPassword)) {
+                    map.put("newPasswordMsg", "旧密码不能与新密码一致!");
+                    return map;
+                } else {
+                    userMapper.updatePassword(user.getId(), CommunityUtil.md5(newPassword + user.getSalt()));
+                    map.put("success", "密码修改成功!");
+                }
+            } else {
+                map.put("oldPasswordMsg", "原密码错误,请重新输入!");
+            }
+        } else {
+            // 这是避免用户之前在地址栏输入setting来访问该页面，此时未登陆，所以threadlocal里面没有对应的用户，
+            // 后续会添加拦截器，未登陆的用户无法访问该页面, 此时最外层if判断可删去
+            map.put("oldPasswordMsg", "用户未登陆");
+        }
+        return map;
     }
 }

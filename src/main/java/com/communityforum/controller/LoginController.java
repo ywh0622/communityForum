@@ -3,6 +3,7 @@ package com.communityforum.controller;
 import com.communityforum.entity.User;
 import com.communityforum.service.UserService;
 import com.communityforum.util.CommunityConstant;
+import com.communityforum.util.CommunityUtil;
 import com.google.code.kaptcha.Producer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -10,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.Cookie;
@@ -50,6 +48,11 @@ public class LoginController implements CommunityConstant {
     @GetMapping("/login")
     public String getLoginPage() {
         return "/site/login";
+    }
+
+    @GetMapping("/forget")
+    public String getForgetPage(){
+        return "/site/forget";
     }
 
     /**
@@ -172,5 +175,65 @@ public class LoginController implements CommunityConstant {
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
         return "redirect:/index";
+    }
+
+    /**
+     * 获取验证码
+     * @param email
+     * @param session
+     * @return
+     */
+    @GetMapping("/forget/code")
+    @ResponseBody
+    public String getForgetCode(String email, HttpSession session) {
+        //先验证邮箱是否为空
+        if (StringUtils.isBlank(email)) {
+            return CommunityUtil.getJSONString(1, "邮箱不能为空！");
+        }
+
+        Map<String, Object> map = userService.verifyEmail(email);
+        // 如果返回值map中有verifyCode字段，则表示验证邮箱成功且已经向目标邮箱发送验证码
+        if (map.containsKey("verifyCode")) {
+            session.setAttribute("verifyCode", map.get("verifyCode"));
+            return CommunityUtil.getJSONString(0);
+        } else {
+            return CommunityUtil.getJSONString(1, "查询不到该邮箱注册信息!");
+        }
+    }
+
+    /**
+     * 重置密码
+     * @param email
+     * @param password
+     * @param verifyCode
+     * @param model
+     * @param session
+     * @return
+     */
+    @PostMapping("/forget/password")
+    public String forgetPassword(String email, String password, String verifyCode, Model model, HttpSession session) {
+        try {
+            String code = session.getAttribute("verifyCode").toString();
+            // 判断验证码是否一致
+            if (StringUtils.isBlank(verifyCode) || StringUtils.isBlank(code) || !code.equalsIgnoreCase(verifyCode)) {
+                model.addAttribute("codeMsg", "验证码错误!");
+                return "/site/forget";
+            }
+
+            Map<String, Object> map = userService.resetPassword(email, password);
+
+            if (map.containsKey("user")) {
+                model.addAttribute("msg", "修改密码成功，请重新登录");
+                model.addAttribute("target", "/login");
+                return "/site/operate-result";
+            } else {
+                model.addAttribute("emailMsg", map.get("emailMsg"));
+                model.addAttribute("passwordMsg", map.get("passwordMsg"));
+                return "/site/forget";
+            }
+        } catch (Exception e) {
+            model.addAttribute("codeMsg", "验证码失效，请重新获取验证码!");
+            return "/site/forget";
+        }
     }
 }
