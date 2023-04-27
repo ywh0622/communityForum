@@ -127,6 +127,7 @@ public class UserService implements CommunityConstant {
 
     /**
      * 登陆逻辑
+     *
      * @param username
      * @param password
      * @param expiredSeconds
@@ -177,18 +178,30 @@ public class UserService implements CommunityConstant {
 
     /**
      * 修改登陆凭证状态为退出
+     *
      * @param ticket
      */
-    public void logout(String ticket){
-        loginTicketMapper.updateStatus(ticket,1);
+    public void logout(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
     }
 
     /**
      * 查询登陆凭证
+     *
      * @param ticket
      * @return
      */
-    public LoginTicket findLoginTicket(String ticket){
+    public LoginTicket findLoginTicket(String ticket) {
         return loginTicketMapper.selectByTicket(ticket);
+    }
+
+    /**
+     * 更改头像
+     * @param userId
+     * @param headerUrl
+     * @return
+     */
+    public int updateHeader(int userId, String headerUrl) {
+        return userMapper.updateHeader(userId, headerUrl);
     }
 }
