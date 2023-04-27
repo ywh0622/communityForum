@@ -1,5 +1,6 @@
 package com.communityforum.controller;
 
+import com.communityforum.annotation.LoginRequired;
 import com.communityforum.entity.User;
 import com.communityforum.service.UserService;
 import com.communityforum.util.CommunityConstant;
@@ -172,6 +173,7 @@ public class LoginController implements CommunityConstant {
      * @return
      */
     @GetMapping("/logout")
+    @LoginRequired
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
         return "redirect:/index";

@@ -1,5 +1,6 @@
 package com.communityforum.controller;
 
+import com.communityforum.annotation.LoginRequired;
 import com.communityforum.entity.User;
 import com.communityforum.service.UserService;
 import com.communityforum.util.CommunityUtil;
@@ -46,6 +47,7 @@ public class UserController {
     private HostHolder hostHolder;
 
     @GetMapping("/setting")
+    @LoginRequired
     public String getSettingPage() {
         return "/site/setting";
     }
@@ -58,6 +60,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/upload")
+    @LoginRequired
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
             model.addAttribute("error", "您还没有选择图片");
@@ -133,6 +136,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/changePassword")
+    @LoginRequired
     public String changePassword(String oldPassword, String newPassword, Model model) {
         Map<String, Object> map = userService.changePassword(oldPassword, newPassword);
         if (map.containsKey("success")) {
