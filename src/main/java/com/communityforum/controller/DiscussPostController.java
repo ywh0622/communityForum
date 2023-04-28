@@ -5,6 +5,7 @@ import com.communityforum.entity.User;
 import com.communityforum.service.DiscussPostService;
 import com.communityforum.util.CommunityUtil;
 import com.communityforum.util.HostHolder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +37,9 @@ public class DiscussPostController {
             return CommunityUtil.getJSONString(403, "你还没有登陆");
         }
 
+        if (StringUtils.isBlank(title) || StringUtils.isBlank(content)) {
+            return CommunityUtil.getJSONString(1, "帖子的标题或者内容不能为空");
+        }
         DiscussPost discussPost = new DiscussPost();
         discussPost.setUserId(user.getId());
         discussPost.setTitle(title);
