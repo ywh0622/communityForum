@@ -1,9 +1,11 @@
 package com.communityforum;
 
 
+import com.communityforum.dao.CommentMapper;
 import com.communityforum.dao.DiscussPostMapper;
 import com.communityforum.dao.LoginTicketMapper;
 import com.communityforum.dao.UserMapper;
+import com.communityforum.entity.Comment;
 import com.communityforum.entity.DiscussPost;
 import com.communityforum.entity.LoginTicket;
 import com.communityforum.entity.User;
@@ -25,6 +27,9 @@ public class MapperTests {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private CommentMapper commentMapper;
 
     @Test
     void testSelectUser() {
@@ -94,5 +99,20 @@ public class MapperTests {
         loginTicketMapper.updateStatus("123",0);
         loginTicket = loginTicketMapper.selectByTicket("123");
         System.out.println(loginTicket);
+    }
+
+    @Test
+    void testAddComment(){
+        Comment comment = new Comment();
+        comment.setContent("nihao");
+        comment.setUserId(155);
+        comment.setEntityType(1);
+        comment.setEntityId(155);
+        comment.setTargetId(0);
+        comment.setStatus(2);
+        comment.setCreateTime(new Date());
+
+        int row = commentMapper.insertComment(comment);
+        System.out.println(row);
     }
 }
