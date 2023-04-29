@@ -46,6 +46,8 @@ public class MessageController implements CommunityConstant {
         page.setLimit(5);
         page.setPath("/letter/list");
         page.setRows(messageService.findConversationCount(user.getId()));
+//        测试普通请求发生错，前端界面显示
+//        Integer.parseInt("abc");
 
         // 会话列表
         List<Message> conversationList = messageService.findConversations(user.getId(), page.getOffset(), page.getLimit());
@@ -107,6 +109,9 @@ public class MessageController implements CommunityConstant {
     @ResponseBody
     @LoginRequired
     public String sendLetter(String toName, String content) {
+//        测试异步请求发生错，前端界面显示
+//        Integer.parseInt("abc");
+
         if (StringUtils.isBlank(toName)) {
             return CommunityUtil.getJSONString(1, "请输入目标用户!");
         }
