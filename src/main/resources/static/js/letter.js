@@ -1,6 +1,6 @@
 $(function(){
 	$("#sendBtn").click(send_letter);
-	$(".close").click(delete_msg);
+	$("#deleteMsg").click(delete_msg);
 });
 
 function send_letter() {
@@ -28,6 +28,24 @@ function send_letter() {
 }
 
 function delete_msg() {
-	// TODO 删除数据
-	$(this).parents(".media").remove();
+	// 删除数据
+	var messageId = $("#messageId").val();
+	$.post(
+		CONTEXT_PATH + "/letter/delete",
+		{"messageId":messageId},
+		function (data) {
+			data = $.parseJSON(data);
+			if (data.code === 0){
+				$("#hintBody").text("消息删除成功!");
+				$(this).parents(".media").remove();
+			}else {
+				$("#hintBody").text(data.msg);
+			}
+			$("#hintModal").modal("show");
+			setTimeout(function(){
+				$("#hintModal").modal("hide");
+				location.reload();
+			}, 2000);
+		}
+	)
 }

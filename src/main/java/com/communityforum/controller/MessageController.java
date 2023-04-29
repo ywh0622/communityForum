@@ -134,4 +134,18 @@ public class MessageController implements CommunityConstant {
         return CommunityUtil.getJSONString(0);
     }
 
+
+    @PostMapping("/letter/delete")
+    @ResponseBody
+    @LoginRequired
+    public String deleteMessage(int messageId) {
+        List<Integer> ids = new ArrayList<>();
+        ids.add(messageId);
+        int result = messageService.updateMessageStatus(ids, MESSAGE_DELETE);
+        if (result > 0) {
+            return CommunityUtil.getJSONString(0);
+        } else {
+            return CommunityUtil.getJSONString(1, "删除消息失败, 该消息已被对方删除!");
+        }
+    }
 }
