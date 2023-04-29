@@ -41,4 +41,14 @@ public interface CommunityConstant {
      * 实体类型：评论
      */
     int ENTITY_TYPE_COMMENT = 2;
+
+    /**
+     * 消息类型：已读
+     */
+    int MESSAGE_READ = 1;
+
+    /**
+     * 消息类型：删除
+     */
+    int MESSAGE_DELETE = 2;
 }

@@ -6,17 +6,19 @@ import com.communityforum.entity.Page;
 import com.communityforum.entity.User;
 import com.communityforum.service.MessageService;
 import com.communityforum.service.UserService;
+import com.communityforum.util.CommunityConstant;
+import com.communityforum.util.CommunityUtil;
 import com.communityforum.util.HostHolder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author YWH
@@ -24,7 +26,7 @@ import java.util.Map;
  * @Date 2023/4/29 11:03
  */
 @Controller
-public class MessageController {
+public class MessageController implements CommunityConstant {
 
     @Autowired
     private MessageService messageService;
@@ -93,8 +95,43 @@ public class MessageController {
         // 私信目标
         model.addAttribute("target", userService.getLetterTarget(conversationId));
 
+        // 将私信列表中将未读消息设置为已读
+        List<Integer> ids = messageService.getLetterIds(letterList);
+        if (!ids.isEmpty()) {
+            messageService.updateMessageStatus(ids, MESSAGE_READ);
+        }
         return "/site/letter-detail";
     }
 
+    @PostMapping("/letter/send")
+    @ResponseBody
+    @LoginRequired
+    public String sendLetter(String toName, String content) {
+        if (StringUtils.isBlank(toName)) {
+            return CommunityUtil.getJSONString(1, "请输入目标用户!");
+        }
+        if (StringUtils.isBlank(content)) {
+            return CommunityUtil.getJSONString(1, "请输入发送的内容!");
+        }
+        User target = userService.findUserByName(toName);
+        if (target == null) {
+            return CommunityUtil.getJSONString(1, "目标用户不存在!");
+        }
+
+        Message message = new Message();
+        message.setFromId(hostHolder.getUser().getId());
+        message.setToId(target.getId());
+        if (message.getFromId() < message.getToId()) {
+            message.setConversationId(message.getFromId() + "_" + message.getToId());
+        } else {
+            message.setConversationId(message.getToId() + "_" + message.getFromId());
+        }
+        message.setContent(content);
+        message.setCreateTime(new Date());
+
+        messageService.addMessage(message);
+
+        return CommunityUtil.getJSONString(0);
+    }
 
 }
