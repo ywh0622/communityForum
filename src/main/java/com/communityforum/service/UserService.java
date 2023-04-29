@@ -319,4 +319,22 @@ public class UserService implements CommunityConstant {
         }
         return map;
     }
+
+    /**
+     * 获取目标私信用户
+     *
+     * @param conversationId
+     * @return
+     */
+    public User getLetterTarget(String conversationId) {
+        String[] ids = conversationId.split("_");
+        int id0 = Integer.parseInt(ids[0]);
+        int id1 = Integer.parseInt(ids[1]);
+
+        if (hostHolder.getUser().getId() == id0) {
+            return userMapper.selectById(id1);
+        } else {
+            return userMapper.selectById(id0);
+        }
+    }
 }

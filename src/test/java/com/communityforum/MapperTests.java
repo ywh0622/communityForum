@@ -1,14 +1,8 @@
 package com.communityforum;
 
 
-import com.communityforum.dao.CommentMapper;
-import com.communityforum.dao.DiscussPostMapper;
-import com.communityforum.dao.LoginTicketMapper;
-import com.communityforum.dao.UserMapper;
-import com.communityforum.entity.Comment;
-import com.communityforum.entity.DiscussPost;
-import com.communityforum.entity.LoginTicket;
-import com.communityforum.entity.User;
+import com.communityforum.dao.*;
+import com.communityforum.entity.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +24,9 @@ public class MapperTests {
 
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private MessageMapper messageMapper;
 
     @Test
     void testSelectUser() {
@@ -114,5 +111,27 @@ public class MapperTests {
 
         int row = commentMapper.insertComment(comment);
         System.out.println(row);
+    }
+
+    @Test
+    void testMessage(){
+        List<Message> messages = messageMapper.selectConversations(111, 0, 20);
+        messages.forEach(System.out::println);
+        System.out.println();
+
+        int conversationCount = messageMapper.selectConversationCount(111);
+        System.out.println(conversationCount);
+        System.out.println();
+
+        List<Message> letters = messageMapper.selectLetters("111_112", 0, 10);
+        letters.forEach(System.out::println);
+        System.out.println();
+
+        int letterCount = messageMapper.selectLetterCount("111_112");
+        System.out.println(letterCount);
+        System.out.println();
+
+        int selectLetterUnreadCount = messageMapper.selectLetterUnreadCount(131, "111_131");
+        System.out.println(selectLetterUnreadCount);
     }
 }
