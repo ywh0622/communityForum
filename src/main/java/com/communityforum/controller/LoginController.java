@@ -217,7 +217,7 @@ public class LoginController implements CommunityConstant {
         try {
             String code = session.getAttribute("verifyCode").toString();
             // 判断验证码是否一致
-            if (StringUtils.isBlank(verifyCode) || StringUtils.isBlank(code) || !code.equalsIgnoreCase(verifyCode)) {
+            if (StringUtils.isBlank(verifyCode.trim()) || StringUtils.isBlank(code) || !code.equalsIgnoreCase(verifyCode.trim())) {
                 model.addAttribute("codeMsg", "验证码错误!");
                 return "/site/forget";
             }
