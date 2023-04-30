@@ -2,6 +2,7 @@ package com.communityforum.controller;
 
 import com.communityforum.annotation.LoginRequired;
 import com.communityforum.entity.User;
+import com.communityforum.service.LikeService;
 import com.communityforum.service.UserService;
 import com.communityforum.util.CommunityUtil;
 import com.communityforum.util.HostHolder;
@@ -45,6 +46,9 @@ public class UserController {
 
     @Autowired
     private HostHolder hostHolder;
+
+    @Autowired
+    private LikeService likeService;
 
     @GetMapping("/setting")
     @LoginRequired
@@ -130,6 +134,7 @@ public class UserController {
 
     /**
      * 修改密码功能
+     *
      * @param oldPassword
      * @param newPassword
      * @param model
@@ -142,9 +147,33 @@ public class UserController {
         if (map.containsKey("success")) {
             return "redirect:/logout";
         } else {
-            model.addAttribute("oldPasswordMsg",map.get("oldPasswordMsg"));
-            model.addAttribute("newPasswordMsg",map.get("newPasswordMsg"));
+            model.addAttribute("oldPasswordMsg", map.get("oldPasswordMsg"));
+            model.addAttribute("newPasswordMsg", map.get("newPasswordMsg"));
             return "/site/setting";
         }
     }
+
+    /**
+     * 用户主页
+     *
+     * @param userId
+     * @param model
+     * @return
+     */
+    @GetMapping("/profile/{userId}")
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在");
+        }
+
+        // 用户
+        model.addAttribute("user", user);
+        // 点赞数量
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount", likeCount);
+
+        return "/site/profile";
+    }
+
 }

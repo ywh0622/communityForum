@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
@@ -18,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2023/4/29 17:29
  */
 @SpringBootTest
-public class redisTest {
+public class RedisTest {
 
     @Autowired
     private RedisTemplate redisTemplate;
