@@ -5,6 +5,7 @@ import com.communityforum.entity.DiscussPost;
 import com.communityforum.entity.Page;
 import com.communityforum.entity.User;
 import com.communityforum.service.DiscussPostService;
+import com.communityforum.service.FollowService;
 import com.communityforum.service.LikeService;
 import com.communityforum.service.UserService;
 import com.communityforum.util.CommunityConstant;
@@ -59,6 +60,9 @@ public class UserController implements CommunityConstant {
 
     @Autowired
     private DiscussPostService discussPostService;
+
+    @Autowired
+    private FollowService followService;
 
     @GetMapping("/setting")
     @LoginRequired
@@ -183,6 +187,19 @@ public class UserController implements CommunityConstant {
         int likeCount = likeService.findUserLikeCount(userId);
         model.addAttribute("likeCount", likeCount);
 
+        // 关注数量
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+        model.addAttribute("followeeCount", followeeCount);
+        // 粉丝数量
+        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount", followerCount);
+        // 是否已关注
+        boolean hasFollowed = false;
+        if (hostHolder.getUser() != null) {
+            hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
+        }
+        model.addAttribute("hasFollowed", hasFollowed);
+        // 当前登陆用户是否对该主页用户关注
         return "/site/profile";
     }
 
