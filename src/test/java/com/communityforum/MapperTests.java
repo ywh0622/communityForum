@@ -3,6 +3,7 @@ package com.communityforum;
 
 import com.communityforum.dao.*;
 import com.communityforum.entity.*;
+import com.communityforum.service.CommentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +28,9 @@ public class MapperTests {
 
     @Autowired
     private MessageMapper messageMapper;
+
+    @Autowired
+    private CommentService commentService;
 
     @Test
     void testSelectUser() {
@@ -133,5 +137,14 @@ public class MapperTests {
 
         int selectLetterUnreadCount = messageMapper.selectLetterUnreadCount(131, "111_131");
         System.out.println(selectLetterUnreadCount);
+    }
+
+    @Test
+    void testGetCommentByUserIdAndEntityType(){
+        List<Comment> commentList = commentMapper.selectCommentsByUserIdAndTEntityType(155, 1, 0, 10);
+        commentList.forEach(System.out::println);
+
+        int count = commentMapper.selectCountByUserIdAndTEntityType(155, 1);
+        System.out.println(count);
     }
 }

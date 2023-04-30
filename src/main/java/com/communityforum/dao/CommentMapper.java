@@ -19,4 +19,8 @@ public interface CommentMapper {
     int selectCountByEntity(@Param("entityType") int entityType, @Param("entityId") int entityId);
 
     int insertComment(Comment comment);
+
+    List<Comment> selectCommentsByUserIdAndTEntityType(@Param("userId") int userId, @Param("entityType") int entityType, @Param("offset") int offset, @Param("limit") int limit);
+
+    int selectCountByUserIdAndTEntityType(@Param("userId") int userId, @Param("entityType") int entityType);
 }

@@ -1,13 +1,11 @@
 package com.communityforum.controller;
 
 import com.communityforum.annotation.LoginRequired;
+import com.communityforum.entity.Comment;
 import com.communityforum.entity.DiscussPost;
 import com.communityforum.entity.Page;
 import com.communityforum.entity.User;
-import com.communityforum.service.DiscussPostService;
-import com.communityforum.service.FollowService;
-import com.communityforum.service.LikeService;
-import com.communityforum.service.UserService;
+import com.communityforum.service.*;
 import com.communityforum.util.CommunityConstant;
 import com.communityforum.util.CommunityUtil;
 import com.communityforum.util.HostHolder;
@@ -63,6 +61,9 @@ public class UserController implements CommunityConstant {
 
     @Autowired
     private FollowService followService;
+
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/setting")
     @LoginRequired
@@ -195,11 +196,17 @@ public class UserController implements CommunityConstant {
         model.addAttribute("followerCount", followerCount);
         // 是否已关注
         boolean hasFollowed = false;
+        // 用户主页中，判断是显示我的帖子还是TA的帖子; 判断是显示我的回复还是TA的回复
+        boolean isMyPost = false,isMyReply = false;
         if (hostHolder.getUser() != null) {
             hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
+            isMyPost = hostHolder.getUser().getId() == userId;
+            isMyReply = hostHolder.getUser().getId() == userId;
         }
         model.addAttribute("hasFollowed", hasFollowed);
-        // 当前登陆用户是否对该主页用户关注
+        model.addAttribute("isMyPost", isMyPost);
+        model.addAttribute("isMyReply", isMyReply);
+
         return "/site/profile";
     }
 
@@ -239,7 +246,67 @@ public class UserController implements CommunityConstant {
         }
         model.addAttribute("discussPostVOList", discussPostVOList);
         model.addAttribute("discussPostsCount", discussPostsCount);
+
+        // 用户主页中，判断是显示我的帖子还是TA的帖子; 判断是显示我的回复还是TA的回复
+        boolean isMyPost = false,isMyReply = false;
+        if (hostHolder.getUser() != null) {
+            isMyPost = hostHolder.getUser().getId() == userId;
+            isMyReply = hostHolder.getUser().getId() == userId;
+        }
+        model.addAttribute("isMyPost", isMyPost);
+        model.addAttribute("isMyReply", isMyReply);
+
         return "/site/my-post";
     }
 
+    /**
+     * 个人主页中，我的回复页面
+     *
+     * @param userId
+     * @param model
+     * @param page
+     * @return
+     */
+    @GetMapping("/myReply/{userId}")
+    public String getMyReplyPage(@PathVariable("userId") int userId, Model model, Page page) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在");
+        }
+
+        // 用户
+        model.addAttribute("user", user);
+
+        // 分页设置
+        page.setLimit(5);
+        int discussPostCount = commentService.getDiscussPostCountByComment(userId);
+        page.setRows(discussPostCount);
+        page.setPath("/user/myReply/" + userId);
+
+        List<Comment> commentList = commentService.getDiscussPostByComment(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> replyVOList = new ArrayList<>();
+        if (commentList != null) {
+            for (Comment comment : commentList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("comment", comment);
+                DiscussPost targetDiscussPost = discussPostService.findDiscussPostById(comment.getEntityId());
+                map.put("targetDiscussPost", targetDiscussPost);
+                replyVOList.add(map);
+            }
+        }
+
+        model.addAttribute("replyVOList", replyVOList);
+        model.addAttribute("discussPostCount", discussPostCount);
+
+        // 用户主页中，判断是显示我的帖子还是TA的帖子; 判断是显示我的回复还是TA的回复
+        boolean isMyPost = false, isMyReply = false;
+        if (hostHolder.getUser() != null) {
+            isMyPost = hostHolder.getUser().getId() == userId;
+            isMyReply = hostHolder.getUser().getId() == userId;
+        }
+        model.addAttribute("isMyPost", isMyPost);
+        model.addAttribute("isMyReply", isMyReply);
+
+        return "/site/my-reply";
+    }
 }

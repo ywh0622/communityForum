@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,5 +59,15 @@ public class CommentService implements CommunityConstant {
         }
 
         return rows;
+    }
+
+    // 根据用户id，查询该用户针对帖子的所有评论
+    public List<Comment> getDiscussPostByComment(int userId, int offset, int limit) {
+        return commentMapper.selectCommentsByUserIdAndTEntityType(userId, ENTITY_TYPE_POST, offset, limit);
+    }
+
+    // 根据用户id，查询该用户评论的帖子数量
+    public int getDiscussPostCountByComment(int userId) {
+        return commentMapper.selectCountByUserIdAndTEntityType(userId, ENTITY_TYPE_POST);
     }
 }
