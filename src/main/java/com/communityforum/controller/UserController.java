@@ -1,9 +1,13 @@
 package com.communityforum.controller;
 
 import com.communityforum.annotation.LoginRequired;
+import com.communityforum.entity.DiscussPost;
+import com.communityforum.entity.Page;
 import com.communityforum.entity.User;
+import com.communityforum.service.DiscussPostService;
 import com.communityforum.service.LikeService;
 import com.communityforum.service.UserService;
+import com.communityforum.util.CommunityConstant;
 import com.communityforum.util.CommunityUtil;
 import com.communityforum.util.HostHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +37,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/user")
 @Slf4j(topic = "UserController")
-public class UserController {
+public class UserController implements CommunityConstant {
 
     @Value("${communityForum.path.upload}")
     private String uploadPath;
@@ -49,6 +56,9 @@ public class UserController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private DiscussPostService discussPostService;
 
     @GetMapping("/setting")
     @LoginRequired
@@ -154,7 +164,7 @@ public class UserController {
     }
 
     /**
-     * 用户主页
+     * 用户主页-个人信息
      *
      * @param userId
      * @param model
@@ -174,6 +184,45 @@ public class UserController {
         model.addAttribute("likeCount", likeCount);
 
         return "/site/profile";
+    }
+
+    /**
+     * 个人主页中我的帖子部分
+     *
+     * @param userId
+     * @param model
+     * @param page
+     * @return
+     */
+    @GetMapping("/myPost/{userId}")
+    public String getMyPostPage(@PathVariable("userId") int userId, Model model, Page page) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在");
+        }
+        // 用户
+        model.addAttribute("user", user);
+
+        // 分页信息
+        page.setLimit(5);
+        int discussPostsCount = discussPostService.findDiscussPostRows(userId);
+        page.setRows(discussPostsCount);
+        page.setPath("/user/myPost/" + userId);
+
+        List<DiscussPost> discussPostList = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> discussPostVOList = new ArrayList<>();
+        if (discussPostList != null) {
+            for (DiscussPost post : discussPostList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("post", post);
+                long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
+                map.put("likeCount", likeCount);
+                discussPostVOList.add(map);
+            }
+        }
+        model.addAttribute("discussPostVOList", discussPostVOList);
+        model.addAttribute("discussPostsCount", discussPostsCount);
+        return "/site/my-post";
     }
 
 }
