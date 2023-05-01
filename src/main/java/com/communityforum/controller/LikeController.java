@@ -1,5 +1,6 @@
 package com.communityforum.controller;
 
+import com.communityforum.annotation.LoginRequired;
 import com.communityforum.entity.Event;
 import com.communityforum.entity.User;
 import com.communityforum.event.EventProducer;
@@ -34,6 +35,7 @@ public class LikeController implements CommunityConstant {
 
     @PostMapping("/like")
     @ResponseBody
+    @LoginRequired
     public String like(int entityType, int entityId, int entityUserId, int postId) {
         User user = hostHolder.getUser();
 

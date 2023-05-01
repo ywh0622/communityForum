@@ -137,6 +137,16 @@ public class MapperTests {
 
         int selectLetterUnreadCount = messageMapper.selectLetterUnreadCount(131, "111_131");
         System.out.println(selectLetterUnreadCount);
+
+
+        Message message = messageMapper.selectLatestNotice(155, "comment");
+        System.out.println("查询该用户评论最新的通知: " + message);
+
+        int count = messageMapper.selectNoticeCount(155, "comment");
+        System.out.println("查询该用户评论通知的数量: " +count);
+
+        count = messageMapper.selectNoticeUnReadCount(155,"comment");
+        System.out.println("查询该用户评论未读通知的数量: " +count);
     }
 
     @Test
@@ -147,4 +157,5 @@ public class MapperTests {
         int count = commentMapper.selectCountByUserIdAndTEntityType(155, 1);
         System.out.println(count);
     }
+
 }
