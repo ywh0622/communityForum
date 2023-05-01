@@ -10,7 +10,7 @@
         user_id, entity_type, entity_id, target_id, content, status, create_time
     </sql>
 
-    <select id="selectCommentsByEntity" resultType="Comment">
+    <select id="selectCommentsByEntity" resultType="com.communityforum.entity.Comment">
         select <include refid="selectFields"></include>
         from comment
         where status = 0
@@ -28,12 +28,12 @@
         and entity_id = #{entityId}
     </select>
 
-    <insert id="insertComment" parameterType="Comment" keyProperty="id">
+    <insert id="insertComment" parameterType="com.communityforum.entity.Comment" keyProperty="id">
         insert into comment(<include refid="insertFields"></include>)
         values (#{userId}, #{entityType}, #{entityId}, #{targetId},#{content}, #{status}, #{createTime})
     </insert>
 
-    <select id="selectCommentsByUserIdAndTEntityType" resultType="Comment">
+    <select id="selectCommentsByUserIdAndTEntityType" resultType="com.communityforum.entity.Comment">
         select <include refid="selectFields"></include>
         from comment
         where status = 0
@@ -49,5 +49,11 @@
         where status = 0
         and user_id = #{userId}
         and entity_type = #{entityType}
+    </select>
+
+    <select id="selectCommentById" resultType="com.communityforum.entity.Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where id = #{id}
     </select>
 </mapper>

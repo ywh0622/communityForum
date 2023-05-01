@@ -35,6 +35,9 @@ public class LogAspect {
     public void beforeController(JoinPoint joinPoint) {
         // 用户[1.2.3.4] 在[xxx],访问了xxx
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null){
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -47,6 +50,9 @@ public class LogAspect {
     public void beforeService(JoinPoint joinPoint) {
         // 用户[1.2.3.4] 在[xxx],访问了xxx
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null){
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());

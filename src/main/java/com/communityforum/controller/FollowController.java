@@ -1,7 +1,9 @@
 package com.communityforum.controller;
 
+import com.communityforum.entity.Event;
 import com.communityforum.entity.Page;
 import com.communityforum.entity.User;
+import com.communityforum.event.EventProducer;
 import com.communityforum.service.FollowService;
 import com.communityforum.service.UserService;
 import com.communityforum.util.CommunityConstant;
@@ -35,6 +37,9 @@ public class FollowController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @PostMapping("/follow")
     @ResponseBody
     public String follow(int entityType, int entityId) {
@@ -44,6 +49,16 @@ public class FollowController implements CommunityConstant {
         }
 
         followService.follow(user.getId(), entityType, entityId);
+
+        // 触发关注事件
+        Event event = new Event()
+                .setTopic(TOPIC_FOLLOW)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(entityType)
+                .setEntityId(entityId)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
+
         return CommunityUtil.getJSONString(0, "关注成功!");
     }
 

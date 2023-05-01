@@ -70,4 +70,8 @@ public class CommentService implements CommunityConstant {
     public int getDiscussPostCountByComment(int userId) {
         return commentMapper.selectCountByUserIdAndTEntityType(userId, ENTITY_TYPE_POST);
     }
+
+    public Comment findCommentById(int id) {
+        return commentMapper.selectCommentById(id);
+    }
 }

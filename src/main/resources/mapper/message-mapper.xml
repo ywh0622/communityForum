@@ -10,7 +10,7 @@
         from_id, to_id, conversation_id, content, status, create_time
     </sql>
 
-    <select id="selectConversations" resultType="Message">
+    <select id="selectConversations" resultType="com.communityforum.entity.Message">
         SELECT <include refid="selectFields"></include>
         FROM message
         WHERE id in(
@@ -42,7 +42,7 @@
         ) AS m
     </select>
 
-    <select id="selectLetters" resultType="Message">
+    <select id="selectLetters" resultType="com.communityforum.entity.Message">
         select <include refid="selectFields"></include>
         from message
         where status != 2
@@ -71,7 +71,7 @@
         </if>
     </select>
 
-    <insert id="insertMessage" parameterType="Message" keyProperty="id">
+    <insert id="insertMessage" parameterType="com.communityforum.entity.Message" keyProperty="id">
         insert into message(<include refid="insertFields"></include>)
         values (#{fromId}, #{toId}, #{conversationId}, #{content}, #{status}, #{createTime})
     </insert>

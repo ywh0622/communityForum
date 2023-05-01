@@ -211,7 +211,7 @@ public class LoginController implements CommunityConstant {
      */
     @GetMapping("/forget/code")
     @ResponseBody
-    public String getForgetCode(String email,HttpServletResponse response/**, HttpSession session**/) {
+    public String getForgetCode(String email, HttpServletResponse response/**, HttpSession session**/) {
         //先验证邮箱是否为空
         if (StringUtils.isBlank(email)) {
             return CommunityUtil.getJSONString(1, "邮箱不能为空！");
@@ -223,13 +223,13 @@ public class LoginController implements CommunityConstant {
 //            session.setAttribute("verifyCode", map.get("verifyCode"));
             // 验证码的归属用户
             String verifyCodeOwner = CommunityUtil.generateUUID();
-            Cookie cookie = new Cookie("verifyCodeOwner",verifyCodeOwner);
+            Cookie cookie = new Cookie("verifyCodeOwner", verifyCodeOwner);
             cookie.setMaxAge(60);
             cookie.setPath(contextPath);
             response.addCookie(cookie);
             // 将验证码存入redis
             String redisKey = RedisKeyUtil.getForgetKaptchaKey(verifyCodeOwner);
-            redisTemplate.opsForValue().set(redisKey,map.get("verifyCode"),300,TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(redisKey, map.get("verifyCode"), 300, TimeUnit.SECONDS);
             return CommunityUtil.getJSONString(0);
         } else {
             return CommunityUtil.getJSONString(1, "查询不到该邮箱注册信息!");
@@ -248,11 +248,11 @@ public class LoginController implements CommunityConstant {
      */
     @PostMapping("/forget/password")
     public String forgetPassword(String email, String password, String verifyCode, Model model/**, HttpSession session**/,
-                                 @CookieValue(value = "verifyCodeOwner",required = false) String  verifyCodeOwner) {
+                                 @CookieValue(value = "verifyCodeOwner", required = false) String verifyCodeOwner) {
         try {
 //            String code = session.getAttribute("verifyCode").toString();
             String code = null;
-            if (StringUtils.isNotBlank(verifyCodeOwner)){
+            if (StringUtils.isNotBlank(verifyCodeOwner)) {
                 String redisKey = RedisKeyUtil.getForgetKaptchaKey(verifyCodeOwner);
                 code = (String) redisTemplate.opsForValue().get(redisKey);
             }
