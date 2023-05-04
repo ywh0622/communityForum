@@ -165,4 +165,54 @@ public class DiscussPostController implements CommunityConstant {
         return "/site/discuss-detail";
     }
 
+    /**
+     * 置顶或取消置顶
+     *
+     * @param discussPostId
+     * @return
+     */
+    @PostMapping("/top")
+    @ResponseBody
+    public String setTop(int discussPostId) {
+        DiscussPost discussPost = discussPostService.findDiscussPostById(discussPostId);
+        // 获取置顶状态，1为置顶，0为正常状态,1^1=0 0^1=1
+        int type = discussPost.getType() ^ 1;
+        // 返回的结果
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", type);
+        discussPostService.updateType(discussPostId, type);
+        return CommunityUtil.getJSONString(0, null, map);
+    }
+
+    /**
+     * 加精或者取消加精
+     *
+     * @param discussPostId
+     * @return
+     */
+    @PostMapping("/wonderful")
+    @ResponseBody
+    public String setWonderful(int discussPostId) {
+        DiscussPost discussPost = discussPostService.findDiscussPostById(discussPostId);
+        // 获取置顶状态，1为置顶，0为正常状态,1^1=0 0^1=1
+        int status = discussPost.getStatus() ^ 1;
+        // 返回的结果
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", status);
+        discussPostService.updateStatus(discussPostId, status);
+        return CommunityUtil.getJSONString(0, null, map);
+    }
+
+    /**
+     * 删除帖子
+     *
+     * @param discussPostId
+     * @return
+     */
+    @PostMapping("/delete")
+    @ResponseBody
+    public String setDelete(int discussPostId) {
+        discussPostService.updateStatus(discussPostId, 2);
+        return CommunityUtil.getJSONString(0);
+    }
 }

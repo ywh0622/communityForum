@@ -1,7 +1,14 @@
+$(function () {
+    $("#topBtn").click(setTop);
+    $("#wonderfulBtn").click(setWonderful);
+    $("#deleteBtn").click(setDelete);
+});
+
+// 点赞
 function like(btn, entityType, entityId, entityUserId, postId) {
     $.post(
         CONTEXT_PATH + "/like",
-        {"entityType": entityType, "entityId": entityId, "entityUserId":entityUserId, "postId":postId},
+        {"entityType": entityType, "entityId": entityId, "entityUserId": entityUserId, "postId": postId},
         function (data) {
             data = $.parseJSON(data);
             if (data.code === 0) {
@@ -12,4 +19,52 @@ function like(btn, entityType, entityId, entityUserId, postId) {
             }
         }
     );
+}
+
+// 置顶
+function setTop() {
+    $.post(
+        CONTEXT_PATH + "/discuss/top",
+        {"discussPostId": $("#postId").val()},
+        function (data) {
+            data = $.parseJSON(data);
+            if (data.code === 0) {
+                $("#topBtn").text(data.type === 1 ? '取消置顶' : '置顶');
+            } else {
+                alert(data.msg)
+            }
+        }
+    )
+}
+
+// 加精
+function setWonderful() {
+    $.post(
+        CONTEXT_PATH + "/discuss/wonderful",
+        {"discussPostId": $("#postId").val()},
+        function (data) {
+            data = $.parseJSON(data);
+            if (data.code === 0) {
+                $("#wonderfulBtn").text(data.status === 1 ? '取消加精' : '加精');
+            } else {
+                alert(data.msg)
+            }
+        }
+    )
+}
+
+// 删除
+function setDelete() {
+    $.post(
+        CONTEXT_PATH + "/discuss/delete",
+        {"discussPostId": $("#postId").val()},
+        function (data) {
+            data = $.parseJSON(data);
+            if (data.code === 0) {
+                location.href = CONTEXT_PATH + "/index";
+            } else {
+                alert(data.msg)
+            }
+        }
+    )
 }
