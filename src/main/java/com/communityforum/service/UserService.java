@@ -9,14 +9,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -185,7 +183,7 @@ public class UserService implements CommunityConstant {
 //        loginTicketMapper.insertLoginTicket(loginTicket);
 
         String redisKey = RedisKeyUtil.getTicket(loginTicket.getTicket());
-        redisTemplate.opsForValue().set(redisKey, loginTicket,36000,TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, loginTicket, 36000, TimeUnit.SECONDS);
 
         map.put("ticket", loginTicket.getTicket());
         return map;
@@ -201,7 +199,7 @@ public class UserService implements CommunityConstant {
         String redisKey = RedisKeyUtil.getTicket(ticket);
         LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(redisKey);
         loginTicket.setStatus(1);
-        redisTemplate.opsForValue().set(redisKey, loginTicket,360,TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, loginTicket, 360, TimeUnit.SECONDS);
     }
 
     /**
@@ -387,5 +385,23 @@ public class UserService implements CommunityConstant {
     public void clearCache(int userId) {
         String redisKey = RedisKeyUtil.getUserKey(userId);
         redisTemplate.delete(redisKey);
+    }
+
+    // 查询某个用户的权限
+    public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
+        User user = this.findUserById(userId);
+
+        List<GrantedAuthority> list = new ArrayList<>();
+        list.add((GrantedAuthority) () -> {
+            switch (user.getType()) {
+                case 1:
+                    return AUTHORITY_ADMIN;
+                case 2:
+                    return AUTHORITY_MODERATOR;
+                default:
+                    return AUTHORITY_USER;
+            }
+        });
+        return list;
     }
 }

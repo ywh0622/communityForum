@@ -41,7 +41,7 @@ public class MessageController implements CommunityConstant {
 
     // 私信列表
     @GetMapping("/letter/list")
-    @LoginRequired
+//    @LoginRequired
     public String getLetterList(Model model, Page page) {
         User user = hostHolder.getUser();
         // 分页信息
@@ -78,7 +78,7 @@ public class MessageController implements CommunityConstant {
     }
 
     @GetMapping("/letter/detail/{conversationId}")
-    @LoginRequired
+//    @LoginRequired
     public String getLetterDetail(@PathVariable("conversationId") String conversationId, Model model, Page page) {
         // 分页信息
         page.setLimit(8);
@@ -111,7 +111,7 @@ public class MessageController implements CommunityConstant {
 
     @PostMapping("/letter/send")
     @ResponseBody
-    @LoginRequired
+//    @LoginRequired
     public String sendLetter(String toName, String content) {
 //        测试异步请求发生错，前端界面显示
 //        Integer.parseInt("abc");
@@ -146,7 +146,7 @@ public class MessageController implements CommunityConstant {
 
     @PostMapping("/letter/delete")
     @ResponseBody
-    @LoginRequired
+//    @LoginRequired
     public String deleteMessage(int messageId) {
         List<Integer> ids = new ArrayList<>();
         ids.add(messageId);
@@ -159,7 +159,7 @@ public class MessageController implements CommunityConstant {
     }
 
     @GetMapping("/notice/list")
-    @LoginRequired
+//    @LoginRequired
     public String getNoticeList(Model model) {
         User user = hostHolder.getUser();
 
@@ -239,7 +239,7 @@ public class MessageController implements CommunityConstant {
     }
 
     @GetMapping("/notice/detail/{topic}")
-    @LoginRequired
+//    @LoginRequired
     public String getNoticeDetail(@PathVariable("topic") String topic, Model model, Page page) {
         User user = hostHolder.getUser();
 

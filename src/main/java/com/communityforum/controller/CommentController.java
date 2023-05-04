@@ -39,7 +39,7 @@ public class CommentController implements CommunityConstant {
     private DiscussPostService discussPostService;
 
     @PostMapping("/add/{discussPostId}")
-    @LoginRequired
+//    @LoginRequired
     public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment) {
         // 前端的comment会传入content，entityType(1)和entityId(帖子Id)
         comment.setUserId(hostHolder.getUser().getId());

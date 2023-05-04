@@ -66,7 +66,7 @@ public class UserController implements CommunityConstant {
     private CommentService commentService;
 
     @GetMapping("/setting")
-    @LoginRequired
+//    @LoginRequired
     public String getSettingPage() {
         return "/site/setting";
     }
@@ -79,7 +79,7 @@ public class UserController implements CommunityConstant {
      * @return
      */
     @PostMapping("/upload")
-    @LoginRequired
+//    @LoginRequired
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
             model.addAttribute("error", "您还没有选择图片");
@@ -156,7 +156,7 @@ public class UserController implements CommunityConstant {
      * @return
      */
     @PostMapping("/changePassword")
-    @LoginRequired
+//    @LoginRequired
     public String changePassword(String oldPassword, String newPassword, Model model) {
         Map<String, Object> map = userService.changePassword(oldPassword, newPassword);
         if (map.containsKey("success")) {

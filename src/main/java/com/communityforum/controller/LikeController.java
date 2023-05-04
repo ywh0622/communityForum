@@ -35,7 +35,7 @@ public class LikeController implements CommunityConstant {
 
     @PostMapping("/like")
     @ResponseBody
-    @LoginRequired
+//    @LoginRequired
     public String like(int entityType, int entityId, int entityUserId, int postId) {
         User user = hostHolder.getUser();
 
