@@ -21,6 +21,10 @@ public class RedisKeyUtil {
 
     private static final String PREFIX_USER = "user";
 
+    private static final String PREFIX_UV = "uv";
+
+    private static final String PREFIX_DAV = "dau";
+
     private static final String PREFIX_FORGOT_PASSWORD_KAPTCHA = "forget:password:kaptcha";
 
     // 某个实体的赞
@@ -65,5 +69,25 @@ public class RedisKeyUtil {
     // 忘记密码界面中验证码
     public static String getForgetKaptchaKey(String owner) {
         return PREFIX_FORGOT_PASSWORD_KAPTCHA + SPLIT + owner;
+    }
+
+    // 单日uv
+    public static String getUVKey(String date) {
+        return PREFIX_UV + SPLIT + date;
+    }
+
+    // 区间UV
+    public static String getUVKey(String startDate, String endDate) {
+        return PREFIX_UV + SPLIT + startDate + SPLIT + endDate;
+    }
+
+    // 单日活跃用户
+    public static String getDAUKey(String date) {
+        return PREFIX_DAV + SPLIT + date;
+    }
+
+    // 区间活跃用户
+    public static String getDAUKey(String startDate, String endDate) {
+        return PREFIX_DAV + SPLIT + startDate + SPLIT + endDate;
     }
 }
