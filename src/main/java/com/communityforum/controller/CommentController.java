@@ -9,7 +9,9 @@ import com.communityforum.service.CommentService;
 import com.communityforum.service.DiscussPostService;
 import com.communityforum.util.CommunityConstant;
 import com.communityforum.util.HostHolder;
+import com.communityforum.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +40,9 @@ public class CommentController implements CommunityConstant {
     @Autowired
     private DiscussPostService discussPostService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @PostMapping("/add/{discussPostId}")
 //    @LoginRequired
     public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment) {
@@ -55,9 +60,15 @@ public class CommentController implements CommunityConstant {
                 .setEntityId(comment.getEntityId())
                 .setData("postId", discussPostId);
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
+            // 对帖子评论
             DiscussPost target = discussPostService.findDiscussPostById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
+
+            // 计算帖子分数
+            String redisKey = RedisKeyUtil.getPostScoreKey();
+            redisTemplate.opsForSet().add(redisKey, discussPostId);
         } else if (comment.getEntityType() == ENTITY_TYPE_COMMENT) {
+            // 对帖子中的评论的评论
             Comment target = commentService.findCommentById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
         }

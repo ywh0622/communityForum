@@ -69,7 +69,7 @@ public class RedisTest {
     void testSets() {
         String redisKey = "test:teachers";
 
-        redisTemplate.opsForSet().add(redisKey, "张三", "李四", "王五", "马六");
+        redisTemplate.opsForSet().add(redisKey, "张三", "李四", "王五", "马六","张三");
 
         System.out.println(redisTemplate.opsForSet().size(redisKey));
         System.out.println(redisTemplate.opsForSet().pop(redisKey));

@@ -12,8 +12,10 @@ import com.communityforum.service.UserService;
 import com.communityforum.util.CommunityConstant;
 import com.communityforum.util.CommunityUtil;
 import com.communityforum.util.HostHolder;
+import com.communityforum.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +46,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 发布帖子
      *
@@ -68,6 +73,10 @@ public class DiscussPostController implements CommunityConstant {
         discussPost.setContent(content);
         discussPost.setCreateTime(new Date());
         discussPostService.addDiscussPost(discussPost);
+
+        // 计算帖子分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, discussPost.getId());
 
         // 报错情况后期一起处理
         return CommunityUtil.getJSONString(0, "发布成功");
@@ -200,6 +209,11 @@ public class DiscussPostController implements CommunityConstant {
         Map<String, Object> map = new HashMap<>();
         map.put("status", status);
         discussPostService.updateStatus(discussPostId, status);
+
+        // 计算帖子分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, discussPost.getId());
+
         return CommunityUtil.getJSONString(0, null, map);
     }
 

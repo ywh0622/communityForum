@@ -197,7 +197,7 @@ public class UserController implements CommunityConstant {
         // 是否已关注
         boolean hasFollowed = false;
         // 用户主页中，判断是显示我的帖子还是TA的帖子; 判断是显示我的回复还是TA的回复
-        boolean isMyPost = false,isMyReply = false;
+        boolean isMyPost = false, isMyReply = false;
         if (hostHolder.getUser() != null) {
             hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
             isMyPost = hostHolder.getUser().getId() == userId;
@@ -233,7 +233,7 @@ public class UserController implements CommunityConstant {
         page.setRows(discussPostsCount);
         page.setPath("/user/myPost/" + userId);
 
-        List<DiscussPost> discussPostList = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit());
+        List<DiscussPost> discussPostList = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit(), 1);
         List<Map<String, Object>> discussPostVOList = new ArrayList<>();
         if (discussPostList != null) {
             for (DiscussPost post : discussPostList) {
@@ -248,7 +248,7 @@ public class UserController implements CommunityConstant {
         model.addAttribute("discussPostsCount", discussPostsCount);
 
         // 用户主页中，判断是显示我的帖子还是TA的帖子; 判断是显示我的回复还是TA的回复
-        boolean isMyPost = false,isMyReply = false;
+        boolean isMyPost = false, isMyReply = false;
         if (hostHolder.getUser() != null) {
             isMyPost = hostHolder.getUser().getId() == userId;
             isMyReply = hostHolder.getUser().getId() == userId;

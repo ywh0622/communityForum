@@ -25,6 +25,8 @@ public class RedisKeyUtil {
 
     private static final String PREFIX_DAV = "dau";
 
+    private static final String PREFIX_POST = "post";
+
     private static final String PREFIX_FORGOT_PASSWORD_KAPTCHA = "forget:password:kaptcha";
 
     // 某个实体的赞
@@ -89,5 +91,10 @@ public class RedisKeyUtil {
     // 区间活跃用户
     public static String getDAUKey(String startDate, String endDate) {
         return PREFIX_DAV + SPLIT + startDate + SPLIT + endDate;
+    }
+
+    // 帖子分数
+    public static String getPostScoreKey() {
+        return PREFIX_POST + SPLIT + "score";
     }
 }
